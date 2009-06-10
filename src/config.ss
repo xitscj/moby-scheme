@@ -10,11 +10,11 @@
 
 ;; current-android-sdk-path: (parameterof path)
 ;; Where the Google Android SDK is installed.
-(define current-android-sdk-path (make-parameter (build-path "/usr/local/android")))
+(define current-android-sdk-path (make-parameter (build-path "/home/squirrel/src/android-sdk-linux_x86-1.0_r2")))
 
 ;; current-android-sdk-tools-path: (parameterof path)
 ;; Where the Google Android SDK tools are installed.
-(define current-android-sdk-tools-path (make-parameter (build-path "/usr/local/android/tools")))
+(define current-android-sdk-tools-path (make-parameter (build-path "/home/squirrel/src/android-sdk-linux_x86-1.0_r2/tools")))
 
 ;; current-has-android-sdk?: (parameterof boolean)
 ;; If you don't have the Android SDK, set this to false.

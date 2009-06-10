@@ -1,0 +1,47 @@
+#include <stdlib.h>
+#include "scheme.h"
+#include "scheme-lib.h"
+#include "kernel.h"
+
+//
+// translated code
+//
+
+<<PROGRAM-DEFINITIONS>>
+
+//
+// "predefined" code
+//
+
+static unsigned long last_millis;
+
+static void do_redraw() {
+	if (WorldKernel_redraw_led != NULL)
+		for (char i = 0; i < WorldKernel_num_leds; i++)
+			digitalWrite(4 + i, boolean_val(CALL(WorldKernel_redraw_led, 2, WorldKernel_world, alloc_number(i))) ? HIGH : LOW);
+}
+
+void setup() {
+	<<PROGRAM-TOPLEVEL-EXPRESSIONS>>
+	
+	for (char i = 0; i < WorldKernel_num_leds; i++)
+		pinMode(4 + i, OUTPUT);
+	last_millis = millis();
+	
+	do_redraw();
+}
+
+void loop() {
+	while (last_millis < millis()) {
+		bool dirty = false;
+		
+		for (int i = 0; i < WorldKernel_num_tick_handlers; i++)
+			if (last_millis % WorldKernel_period[i] == 0) {
+				REREF(WorldKernel_world, CALL(WorldKernel_tick_handler[i], 1, WorldKernel_world));
+				dirty = true;
+			}
+		
+		if (dirty) do_redraw();
+		last_millis++;
+	}
+}

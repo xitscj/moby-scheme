@@ -10,23 +10,27 @@
          "helpers.ss"
          "env.ss"
          "image-lift.ss"
-         "beginner-to-java.ss"
+         "beginner-to-arduino.ss"
          "utils.ss"
          "template.ss"
          "config.ss"
-         "pinfo.ss"
+         "pinfo-arduino.ss" ; TODO: HACK
          "permission.ss")
 
 (provide/contract [generate-j2me-application
                    (string? path-string? path-string? . -> . any)]
                   
                   [generate-android-application
+                   (string? path-string? path-string? . -> . any)]
+                  
+                  [generate-arduino-application
                    (string? path-string? path-string? . -> . any)])
 
 
 ;; A platform is one of PLATFORM:ANDROID, PLATFORM:J2ME.
 (define PLATFORM:ANDROID 'android)
 (define PLATFORM:J2ME 'j2me)
+(define PLATFORM:ARDUINO 'arduino)
 
 
 ;; A stub is one of the following
@@ -53,10 +57,14 @@
 (define-runtime-path j2me-world-stub-path
   "../support/j2me/MidletStub.java.template")
 
+(define-runtime-path arduino-world-stub-path
+  "../support/arduino/stub.pde.template")
+
 (define-runtime-path android-gui-world-stub-path
   "../support/android/ActivityStub.java.template")
 
 (define-runtime-path android-skeleton-path "../support/android/skeleton")
+(define-runtime-path arduino-skeleton-path "../support/arduino/skeleton")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -77,6 +85,11 @@
   (compile-program-to-android (open-beginner-program file) name dest))
 
 
+;; generate-arduino-application: string path path -> void
+;; Compiles an Arduino application.
+(define (generate-arduino-application name file dest)
+  (compile-program-to-arduino (open-beginner-program file) name dest))
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -89,15 +102,15 @@
 ;; teachpack.  We need to consume a text because we must first lift up all the images
 ;; as resources.
 (define (compile-program-to-j2me text name dest-dir)
-  (log-info (format "Compiling ~a to ~s" name dest-dir))
+;  (log-info (format "Compiling ~a to ~s" name dest-dir))
   (make-j2me-directories dest-dir)
   (lift-images-to-directory text (build-path dest-dir "res"))
   (let*-values ([(classname)
                  (upper-camel-case name)]
                 [(program)
                  (parse-text-as-program text)]
-                [(compiled-program)
-                 (program->java-string program)]
+                [(compiled-program) ""] ; HACK
+;                 (program->java-string program)]
                 [(defns pinfo)
                  (values (compiled-program-defns compiled-program)
                          (compiled-program-pinfo compiled-program))]
@@ -142,15 +155,15 @@
 ;; Writes out the compilation of the text program with the given name to the
 ;; destination directory.
 (define (compile-program-to-android text name dest-dir)
-  (log-info (format "Compiling ~a to ~s" name dest-dir))
+;  (log-info (format "Compiling ~a to ~s" name dest-dir))
   (make-android-directories dest-dir)
   (lift-images-to-directory text (build-path dest-dir "src"))
   (let* ([classname
           (upper-camel-case name)]
          [program
           (parse-text-as-program text)]
-         [compiled-program
-          (program->java-string program)]
+         [compiled-program ""] ; HACK
+;          (program->java-string program)]
          [pinfo
           (compiled-program-pinfo compiled-program)]
          [mappings
@@ -195,6 +208,13 @@
   (make-directory* (build-path dest-dir "libs")))
 
 
+(define (make-arduino-directories dest-dir)
+  (when (directory-exists? dest-dir)
+    (delete-directory/files dest-dir))
+  (make-directory* dest-dir)
+  (copy-directory/files* arduino-skeleton-path dest-dir))
+
+
 (define (write-android:world-resources pinfo a-name dest-dir)
   (let ([mappings (build-mappings (PROGRAM-NAME (upper-camel-case a-name))
                                   (ANDROID-SDK-PATH (current-android-sdk-path))
@@ -222,6 +242,31 @@
     (replace-template-file dest-dir "res/values/strings.xml" mappings)
     (replace-template-file dest-dir "src/jad.properties" mappings)))
 
+
+;; compile-program-to-arduino: text string path -> void
+;; Writes out the compilation of the text program with the given name to the
+;; destination directory.
+(define (compile-program-to-arduino text name dest-dir)
+;  (log-info (format "Compiling ~a to ~s" name dest-dir))
+  (make-arduino-directories dest-dir)
+  (let*-values ([(program)
+                 (parse-text-as-program text)]
+                [(compiled-program)
+                 (program->arduino-string program)]
+                [(defns pinfo)
+                 (values (compiled-program-defns compiled-program)
+                         (compiled-program-pinfo compiled-program))]
+                [(mappings) 
+                 (build-mappings 
+                  (PROGRAM-DEFINITIONS defns)
+                  (PROGRAM-TOPLEVEL-EXPRESSIONS
+                   (compiled-program-toplevel-exprs
+                    compiled-program)))]
+                [(source-path) 
+                 (build-path dest-dir (string-append name ".pde"))])
+    (fill-template-file arduino-world-stub-path source-path mappings)
+    ;(run-ant-build.xml dest-dir)
+    ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -443,7 +488,7 @@
 (define (copy-port-to-debug-log inp)
   (let loop ([line (read-line inp)])
     (unless (eof-object? line)
-      (log-debug line)
+;      (log-debug line)
       (loop (read-line inp)))))
 
 
@@ -452,7 +497,7 @@
 (define (copy-port-to-error-log inp)
   (let loop ([line (read-line inp)])
     (unless (eof-object? line)
-      (log-error line)
+;      (log-error line)
       (loop (read-line inp)))))
 
 

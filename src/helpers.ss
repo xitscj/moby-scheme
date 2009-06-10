@@ -109,6 +109,9 @@
               (string-join translated-chunks ""))])
        translated-id)]))
 
+; TODO: good enough for now
+(define identifier->munged-arduino-identifier identifier->munged-java-identifier)
+
 
 ;; path=?: path path -> boolean
 ;; Returns true if the paths refer to the same file.
@@ -123,4 +126,5 @@
                   [test-case? (any/c . -> . boolean?)]
                   [library-require? (any/c . -> . boolean?)]
                   [identifier->munged-java-identifier (symbol? . -> . symbol?)]
+                  [identifier->munged-arduino-identifier (symbol? . -> . symbol?)]
                   [path=? (path? path? . -> . boolean?)])

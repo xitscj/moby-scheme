@@ -102,3 +102,9 @@
   (apply string-append
          (map string-titlecase (regexp-split #px"[\\s]+" 
                                              (regexp-replace* #px"[^\\s\\w]+" name " ")))))
+
+;; mapi: (a -> b) -> i -> list[a] -> list[b]
+(define (mapi f i l)
+  (cond
+    [(null? l) '()]
+    [(pair? l) (cons (f i (car l)) (mapi f (+ i 1) (cdr l)))]))
