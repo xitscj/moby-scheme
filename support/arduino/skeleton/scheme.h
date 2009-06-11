@@ -92,7 +92,7 @@ val_t error(const char *err);
 #define ARGC() (size_struct(struct_val(_args)))
 #define RETURN(r) ({ val_t _ret = r; deref(_args); return _ret; })
 #define CALL(fun, n, args...) ((fun)(alloc_struct("", (n), (val_t []){ args })))
-#define IGNORE(x) free(x)
+#define IGNORE(x) free_val(x)
 
 #define REREF(var, val) ({ val_t _temp = ref(val); deref(var); (var) = _temp; })
 

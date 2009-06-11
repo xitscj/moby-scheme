@@ -18,7 +18,7 @@ int WorldKernel_num_leds = 0, WorldKernel_num_meters = 0;
 
 FUN(WorldKernel_bigBang) {
 	START();
-	WorldKernel_world = ARG(0);
+	REREF(WorldKernel_world, ARG(0));
 	RETURN(alloc_nil());
 }
 
