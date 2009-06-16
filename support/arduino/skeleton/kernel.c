@@ -5,7 +5,7 @@
 // 640 kB ought to be enough...
 #define MAX_TICK_HANDLERS 8
 
-val_t WorldKernel_world = & (struct val) { 1, NIL };
+val_t WorldKernel_world = & (struct val) { STATIC(1), NIL };
 int WorldKernel_period[MAX_TICK_HANDLERS];
 
 int WorldKernel_num_tick_handlers = 0;

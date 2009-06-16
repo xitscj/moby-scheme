@@ -246,7 +246,7 @@
              (expression->arduino-string alternative env))]
     
     [(list 'and expr ...)
-     (string-append "alloc_boolean("
+     (string-append "alloc_boolean(true && "
                     (string-join (map (lambda (e)
                                         (format "boolean_val(~a)"
                                                 (expression->arduino-string e env)))
@@ -255,7 +255,7 @@
                     ")")]
     
     [(list 'or expr ...)
-     (string-append "alloc_boolean("
+     (string-append "alloc_boolean(false || "
                     (string-join (map (lambda (e)
                                         (format "boolean_val(~a)"
                                                 (expression->arduino-string e env)))
@@ -350,13 +350,8 @@
          ;; TODO: we need to handle exact/vs/inexact issue.
          ;; We probably need the numeric tower.
          (format "alloc_number(~a)" a-num)]
-        [(and (inexact? a-num)
-              (real? a-num))
+        [(real? a-num)
          (format "alloc_number(~a)" a-num)]
-        [(rational? a-num)
-         (format "alloc_number(~a)" 
-                 (/ (numerator a-num) 
-                    (denominator a-num)))]
         [else
          (error 'number->java-string "Don't know how to handle ~s yet" a-num)]))
 
