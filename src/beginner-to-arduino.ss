@@ -306,10 +306,12 @@
               "Moby doesn't know about ~s" id)]
       
       [(struct binding:constant (name arduino-string permissions))
-       (format "CALL(function_val(~a), ~a, ~a)" 
+       (format "CALL(function_val(~a), ~a~a)" 
                arduino-string
                (length operand-strings)
-               (string-join operand-strings ", "))]
+               (if (empty? operand-strings)
+                   ""
+                   (string-append ", " (string-join operand-strings ", "))))]
       
       [(struct binding:function (name module-path min-arity var-arity? 
                                       arduino-string permissions))
@@ -319,11 +321,12 @@
                 "Minimal arity of ~s not met.  Operands were ~s"
                 id
                 exprs))
-       (format "CALL(~a, ~a, ~a)" 
+       (format "CALL(~a, ~a~a)" 
                arduino-string
                (length operand-strings)
-               ; TODO: null-arity?
-               (string-join operand-strings ", "))])))
+               (if (empty? operand-strings)
+                   ""
+                   (string-append ", " (string-join operand-strings ", "))))])))
 
 
 
