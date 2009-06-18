@@ -3,6 +3,7 @@
 #include "scheme-lib.h"
 #include "kernel.h"
 #include "goertzel.h"
+#include "arduino_ext.h"
 
 #define SOUNDBUFFERSIZE 500
 
@@ -26,9 +27,9 @@ unsigned char *sb2 = soundbuffer2;
 int head = 0;
 bool sendbuffer = false;
 
-void updatebuffer() {
+void updatebuffer(int byte) {
      unsigned char* temp;
-     sb1[head] = (char)(head % 4); //digitalRead(0);
+     sb1[head] = (char)(head % 4);//(char)byte;
      head++;
      if(head == SOUNDBUFFERSIZE) {
      	     temp = sb2;
@@ -64,7 +65,7 @@ void loop() {
 		if(sendbuffer) {
 		  CALL(WorldKernel_buffer_handler, 1, WorldKernel_world, alloc_sb(sb2));
 		}
-		updatebuffer();
+		updatebuffer(0);//analogStart(1, &updatebuffer)
 		for (int i = 0; i < WorldKernel_num_tick_handlers; i++)
 			if (last_millis % WorldKernel_period[i] == 0) {
 				REREF(WorldKernel_world, CALL(WorldKernel_tick_handler[i], 1, WorldKernel_world));

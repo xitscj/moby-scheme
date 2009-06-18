@@ -153,38 +153,10 @@ static int determine(SAMPLE input[MAX_N]) // the input[] should be of length 100
 
 /* THIS SHOULD BE THE ONLY NON-STATIC METHOD IN THE FINAL VERSION */
 FUN(goertzel) {
-  //SAMPLE input[MAX_N] = sb_val(ARG(0)) -> data;
+  START();
   int ret;
-  int input = integer_val(ARG(0));  // this is a filler for testing -- remove it later
-  if( input == 0) {  
-  int i;
-  float randnums[MAX_N];  
-  
-  
-  /* THIS IS ONLY FOR TESTING */
-  unsigned char testData[MAX_N];
-  float arand;
-  for( i = 0; i < MAX_N; i++) {
-    arand = (float)(1.0*((((double)random())/((double)(RAND_MAX)+(double)(1)))));
-    randnums[i] = arand;
-  }
-
-  float step = 1633.0 * ((2.0 * PI) / SAMPLING_RATE);
-  float step2 = 941.0 * ((2.0 * PI) / SAMPLING_RATE);
-
-  for (i = 0; i < MAX_N; i++)
-  {
-    testData[i] = (SAMPLE) (40.0*(1.0 * (0.5*sin(i * step) + 0.5*sin(i * step2)) + randnums[i] + 1.0));
-  }
-  // END TESTING 
-
-  
-  int ret = determine(testData); // testData should be changed to input when everything is running properly
-  } else {
-  ret = (-1);
-  }
-  int testerRet = 15;
-    
-  RETURN(alloc_integer(testerRet)); // should be ret 
+  SAMPLE input[MAX_N] = sb_val(ARG(0)) -> data;
+  ret = determine(input);
+  RETURN(ret); // should be ret 
 }
 
