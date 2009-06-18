@@ -157,6 +157,6 @@ FUN(goertzel) {
   int ret;
   SAMPLE input[MAX_N] = sb_val(ARG(0)) -> data;
   ret = determine(input);
-  RETURN(ret); // should be ret 
+  RETURN(alloc_integer(ret));
 }
 
