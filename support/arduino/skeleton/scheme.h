@@ -19,6 +19,7 @@ enum type {
 	STRING,
 	SYMBOL,
 	STRUCT,
+	SB, // HERE
 	FUNCTION
 };
 
@@ -30,6 +31,15 @@ typedef struct {
 	struct val *data[];
 } struct_t;
 
+#define BUFFER_SIZE ((sb_size_t)500)
+
+typedef uint8_t sb_size_t;
+
+typedef struct {
+	sb_size_t size;
+	unsigned char data[];
+} sb_t;
+
 typedef struct val *function_t(struct val *);
 
 union data {
@@ -40,6 +50,7 @@ union data {
 	char *string;
 	const char *symbol;
 	struct_t *struct_;
+	sb_t *sb;
 	function_t *function;
 };
 
@@ -60,6 +71,7 @@ val_t alloc_string(const char *v);
 val_t alloc_string_nocopy(char *v);
 val_t alloc_symbol(const char *v);
 val_t alloc_struct(const char *type, struct_size_t size, val_t *data);
+val_t alloc_sb(unsigned char *v);
 val_t alloc_function(function_t *function);
 
 void free_val(val_t val);
@@ -77,6 +89,7 @@ struct_t *struct_val(val_t val);
 val_t elem_struct(struct_t *struct_, struct_size_t i);
 const char *type_struct(struct_t *struct_);
 struct_size_t size_struct(struct_t *struct_);
+sb_t *sb_val(val_t val);
 enum type type_val(val_t val);
 function_t *function_val(val_t val);
 
@@ -92,7 +105,7 @@ val_t error(const char *err);
 #define ARGC() (size_struct(struct_val(_args)))
 #define RETURN(r) ({ val_t _ret = r; deref(_args); return _ret; })
 #define CALL(fun, n, args...) ((fun)(alloc_struct("", (n), (val_t []){ args })))
-#define IGNORE(x) free(x)
+#define IGNORE(x) free_val(x)
 
 #define REREF(var, val) ({ val_t _temp = ref(val); deref(var); (var) = _temp; })
 

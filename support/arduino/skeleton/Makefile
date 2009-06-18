@@ -37,7 +37,7 @@
 TARGET = $(notdir $(CURDIR))
 INSTALL_DIR = $(HOME)/src/arduino-0015
 PORT = /dev/ttyUSB*
-UPLOAD_RATE = 19200
+UPLOAD_RATE = 57600
 AVRDUDE_PROGRAMMER = stk500
 MCU = atmega168
 F_CPU = 16000000
@@ -51,7 +51,7 @@ SRC =  $(ARDUINO)/pins_arduino.c $(ARDUINO)/wiring.c \
 $(ARDUINO)/wiring_analog.c $(ARDUINO)/wiring_digital.c \
 $(ARDUINO)/wiring_pulse.c $(ARDUINO)/wiring_serial.c \
 $(ARDUINO)/wiring_shift.c $(ARDUINO)/WInterrupts.c \
-scheme.c scheme-lib.c kernel.c
+scheme.c scheme-lib.c kernel.c goertzel.c
 CXXSRC = $(ARDUINO)/HardwareSerial.cpp $(ARDUINO)/WMath.cpp
 FORMAT = ihex
 

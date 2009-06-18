@@ -36,6 +36,9 @@ void free_val(val_t val) {
 					deref(val -> data.struct_ -> data[i]);
 				free(val -> data.struct_);
 				break;
+			case SB:
+				free(val -> data.sb);
+				break;
 			default:
 				break;
 		}
@@ -106,6 +109,20 @@ val_t alloc_struct(const char *type, struct_size_t size, val_t *data) {
 		v -> data[i] = ref(data[i]);
 	
 	return alloc_val(STRUCT, (union data) v);
+}
+
+val_t alloc_sb(unsigned char *data) {
+	sb_t *v = malloc(sizeof(sb_t) + BUFFER_SIZE * sizeof(unsigned char)); /* this might need to be changed to another example of an unsigned char */
+
+	if (v == NULL) return NULL;
+
+	v -> size = BUFFER_SIZE;
+
+	// memcpy
+	for(sb_size_t i = 0; i < BUFFER_SIZE; i++)
+		v -> data[i] = data[i];
+
+	return alloc_val(SB, (union data) v);
 }
 
 val_t alloc_function(function_t *v) {
@@ -186,6 +203,13 @@ const char *type_struct(struct_t *s) {
 	return s -> type;
 }
 
+sb_t *sb_val(val_t val) {
+	sb_t *ret = & (sb_t) { 0 };
+	if (val -> type == SB) ret = val -> data.sb;
+	free_val(val);
+	return ret;
+}
+
 enum type type_val(val_t val) {
 	enum type ret = val -> type;
 	free_val(val);
@@ -220,6 +244,15 @@ bool _equal(val_t a, val_t b) {
 				}
 				else return false;
 			}
+			case SB: {
+				sb_t *sba = a -> data.sb, *sbb = b -> data.sb;
+				if( sba -> size == sbb -> size) /* Technically, this test isn't needed but it is included for consistency's sake */ {
+					for (int i = 0; i < sba -> size; i++)
+						if(sba -> data[i] != sbb -> data[i]) return false;
+					return true;
+				}
+				else return false;
+		   }
 			default:
 				return false;
 		}
@@ -251,6 +284,8 @@ bool _eqv(val_t a, val_t b) {
 				return (a -> data.string == b -> data.string);
 			case STRUCT:
 				return (a -> data.struct_ == b -> data.struct_);
+			case SB:
+				return (a -> data.sb == b -> data.sb);
 			default:
 				return false;
 		}

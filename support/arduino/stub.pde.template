@@ -2,6 +2,10 @@
 #include "scheme.h"
 #include "scheme-lib.h"
 #include "kernel.h"
+#include "goertzel.h"
+
+#define SOUNDBUFFERSIZE 500
+
 
 //
 // translated code
@@ -14,6 +18,28 @@
 //
 
 static unsigned long last_millis;
+
+unsigned char soundbuffer1[SOUNDBUFFERSIZE];
+unsigned char soundbuffer2[SOUNDBUFFERSIZE];
+unsigned char *sb1 = soundbuffer1;
+unsigned char *sb2 = soundbuffer2;
+int head = 0;
+bool sendbuffer = false;
+
+void updatebuffer() {
+     unsigned char* temp;
+     sb1[head] = (char)(head % 4); //digitalRead(0);
+     head++;
+     if(head == SOUNDBUFFERSIZE) {
+     	     temp = sb2;
+	     sb2 = sb1;
+	     sb1 = temp;
+	     head = 0;
+	     sendbuffer = true;
+     } else {
+       	     sendbuffer = false;
+     }	      
+}
 
 static void do_redraw() {
 	if (WorldKernel_redraw_led != NULL)
@@ -34,7 +60,11 @@ void setup() {
 void loop() {
 	while (last_millis < millis()) {
 		bool dirty = false;
-		
+	
+		if(sendbuffer) {
+		  CALL(WorldKernel_buffer_handler, 1, WorldKernel_world, alloc_sb(sb2));
+		}
+		updatebuffer();
 		for (int i = 0; i < WorldKernel_num_tick_handlers; i++)
 			if (last_millis % WorldKernel_period[i] == 0) {
 				REREF(WorldKernel_world, CALL(WorldKernel_tick_handler[i], 1, WorldKernel_world));

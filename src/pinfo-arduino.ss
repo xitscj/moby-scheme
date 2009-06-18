@@ -300,7 +300,9 @@
                                (bf 'on-redraw-led module-path 1 #f
                                                       "WorldKernel_onRedrawLED")
                                (bf 'on-redraw-meter module-path 1 #f
-                                                      "WorldKernel_onRedrawMeter"))))
+                                                      "WorldKernel_onRedrawMeter")
+                               (bf 'goertzel module-path 0 #f
+                                                      "goertzel"))))
 
 
 ;; world teachpack bindings

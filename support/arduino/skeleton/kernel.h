@@ -13,7 +13,8 @@ extern int WorldKernel_period[];
 extern function_t *WorldKernel_tick_handler[],
                   *WorldKernel_button_handler,
                   *WorldKernel_redraw_led,
-                  *WorldKernel_redraw_meter;
+                  *WorldKernel_redraw_meter,
+                  *WorldKernel_buffer_handler;
 extern int WorldKernel_num_leds, WorldKernel_num_meters, WorldKernel_num_tick_handlers;
 
 FUN(WorldKernel_bigBang);
@@ -21,6 +22,7 @@ FUN(WorldKernel_onTick);
 FUN(WorldKernel_onButton);
 FUN(WorldKernel_onRedrawLED);
 FUN(WorldKernel_onRedrawMeter);
+FUN(WorldKernel_onBufferEvent);
 
 #ifdef __cplusplus
 }
