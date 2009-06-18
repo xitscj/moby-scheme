@@ -109,6 +109,11 @@ val_t error(const char *err);
 
 #define REREF(var, val) ({ val_t _temp = ref(val); deref(var); (var) = _temp; })
 
+// used in reference counts for statically allocated values...
+// add 1 to account for the fact that they are "referenced" by BSS!
+// typical usage: val_t foo = & (struct val) { STATIC(1), ... };
+#define STATIC(x) ((x) + 1)
+
 #define alloc_cons(car, cdr) alloc_struct("cons", 2, (val_t []){ car, cdr })
 #define car(cons) elem_struct(struct_val(cons), 0)
 #define cdr(cons) elem_struct(struct_val(cons), 1)

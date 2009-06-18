@@ -297,11 +297,11 @@
                                (bf 'on-button module-path 1 #f
                                                       "WorldKernel_onButton")
                                
-                               (bf 'on-redraw-led module-path 1 #f
+                               (bf 'on-redraw-led module-path 2 #f
                                                       "WorldKernel_onRedrawLED")
-                               (bf 'on-redraw-meter module-path 1 #f
+                               (bf 'on-redraw-meter module-path 2 #f
                                                       "WorldKernel_onRedrawMeter")
-                               (bf 'goertzel module-path 0 #f
+                               (bf 'goertzel module-path 1 #f
                                                       "goertzel"))))
 
 

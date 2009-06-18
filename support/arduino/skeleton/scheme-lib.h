@@ -11,6 +11,11 @@ extern "C" {
 #define COMPARE_FUN(name, val, c) FUN(name);
 #define STRCMP_FUN(name, strcmp, c) FUN(name);
 
+// null, empty, true, false, eof
+extern val_t plt_EMPTY;
+extern val_t plt_TRUE;
+extern val_t plt_FALSE;
+extern val_t plt_EOF;
 // +, -, *, /
 FUN(plt__plus_);
 FUN(plt__dash_);

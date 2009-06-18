@@ -15,6 +15,13 @@ unsigned long millis(void);
 	if (!(strcmp(string_val(ARG(i)), string_val(ARG(i + 1))) c 0)) RETURN(alloc_boolean(false)); \
 	RETURN(alloc_boolean(true)); }
 
+// null, empty, true, false, eof
+
+val_t plt_EMPTY = & (struct val) { STATIC(1), NIL };
+val_t plt_TRUE = & (struct val) { STATIC(1), BOOLEAN, (union data) true };
+val_t plt_FALSE = & (struct val) { STATIC(1), BOOLEAN, (union data) false };
+val_t plt_EOF = & (struct val) { STATIC(1), NIL };
+
 
 // +, -, *, /
 
