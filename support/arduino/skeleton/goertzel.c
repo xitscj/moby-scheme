@@ -3,21 +3,19 @@
 #include <math.h>
 #include "scheme.h"
 
+#define FLOATING float
+#define SAMPLE unsigned char /* NOTE THAT THE ALGORITHM WILL NOT WORK IF THE DATA PROVIDED EXCEEDS THE MAXIMUM VALUE FOR SAMPLE (AS BASED ON ITS TYPE) */
+
 #define PI M_PI
 #define THRESHOLD_COEFF_LOW 1.0 // The highest low freq power must be THRESHOLD_COEFF * the second highest low freq power
 #define THRESHOLD_COEFF_HIGH 1.0 // The highest high freq power must be THRESHOLD_COEFF * the second highest high freq power
 
-
-#define FLOATING	float
-#define SAMPLE	unsigned char /* NOTE THAT THE ALGORITHM WILL NOT WORK IF THE DATA PROVIDED EXCEEDS THE MAXIMUM VALUE FOR SAMPLE (AS BASED ON ITS TYPE) */
-
-/* What constants/defines need to be in a header file? */
 #define MAX_BINS 8
-#define SAMPLING_RATE	9615.3846153846152	//
-#define MAX_N 500 // A number > all ints in NS[]
+#define SAMPLING_RATE	9615.3846153846152
+#define MAX_N 350 // A number > all ints in NS[]
 
 static const FLOATING FREQUENCIES[MAX_BINS] = {697, 770, 852, 941, 1209, 1336, 1477, 1633};
-static const FLOATING NS[MAX_BINS] = {469, 487, 474, 470, 334, 475, 319, 471};
+static const FLOATING NS[MAX_BINS] = {331, 337, 316, 327, 342, 331, 319, 318};
 
 static FLOATING ks[MAX_BINS];
 static FLOATING est_freqs[MAX_BINS];
@@ -47,7 +45,7 @@ static void setUpConstants()
 }
 
 /* Call this each time a frequency is tested, to precompute the constants. */
-static void InitGoertzel(int i)
+static void InitGoertzel(const int i)
 {
   FLOATING	floatN;
   FLOATING	omega;
@@ -64,7 +62,7 @@ static void InitGoertzel(int i)
 }
 
 /* Call this routine for every sample. */
-static void ProcessSample(SAMPLE sample)
+static void ProcessSample(const SAMPLE sample)
 {
   FLOATING Q0;
   Q0 = coeff * Q1 - Q2 + (FLOATING) sample;
@@ -74,12 +72,6 @@ static void ProcessSample(SAMPLE sample)
 
 
 /* Basic Goertzel */
-/* Call this routine after every block to get the complex result. */
-static void GetRealImag(FLOATING *realPart, FLOATING *imagPart)
-{
-  *realPart = (Q1 - Q2 * cosine);
-  *imagPart = (Q2 * sine);
-}
 
 /* Optimized Goertzel */
 /* Call this after every block to get the RELATIVE magnitude squared. */
@@ -89,7 +81,7 @@ static FLOATING GetMagnitudeSquared(void)
 }
 
 /* Test the given data */
-static FLOATING Test(int i, SAMPLE input[MAX_N])
+static FLOATING Test(int i, const SAMPLE *input)
 {
   int	index;
 
@@ -105,7 +97,8 @@ static FLOATING Test(int i, SAMPLE input[MAX_N])
   }
 
   /* Do the "standard Goertzel" processing. */
-  GetRealImag(&real, &imag);
+  real = (Q1 - Q2 * cosine);
+  imag = (Q2 * sine);
   magnitudeSquared = real*real + imag*imag;
   magnitude = sqrt(magnitudeSquared);
   return magnitude;
@@ -113,7 +106,7 @@ static FLOATING Test(int i, SAMPLE input[MAX_N])
 }
 
 // returns -1 if no conclusive data could be produced, returns 0 - 15 depending on which tone is heard (row 1 of DTMF tones contains 0 - 3, etc.)
-static int determine(SAMPLE input[MAX_N]) // the input[] should be of length 1000
+static int determine(const SAMPLE *input) // the input[] should be of length MAX_N
 {
   int i;
   int max_Low_Power_Index;
@@ -155,8 +148,34 @@ static int determine(SAMPLE input[MAX_N]) // the input[] should be of length 100
 FUN(goertzel) {
   START();
   int ret;
-  SAMPLE input[MAX_N] = sb_val(ARG(0)) -> data;
-  ret = determine(input);
-  RETURN(alloc_integer(ret));
+  SAMPLE *input = sb_val(ARG(0)) -> data; // is this the proper way to get the pointer to the front of the array
+
+/* THIS IS ONLY FOR TESTING */
+/*  int input = integer_val(ARG(0));  // this is a filler for testing -- remove it later
+  int i;
+  float randnums[MAX_N];  
+  
+  unsigned char testData[MAX_N];
+  float arand;
+  for( i = 0; i < MAX_N; i++) {
+    arand = (float)(1.0*((((double)random())/((double)(RAND_MAX)+(double)(1)))));
+    randnums[i] = arand;
+  }
+
+  float step = 1633.0 * ((2.0 * PI) / SAMPLING_RATE);
+  float step2 = 941.0 * ((2.0 * PI) / SAMPLING_RATE);
+
+  for (i = 0; i < MAX_N; i++)
+  {
+    testData[i] = (SAMPLE) (40.0*(1.0 * (0.5*sin(i * step) + 0.5*sin(i * step2)) + randnums[i] + 1.0));
+  }*/
+  // END TESTING 
+
+
+
+  
+ ret = determine(input); // testData should be changed to input when everything is running properly
+    
+  RETURN(alloc_integer(ret)); // should be ret 
 }
 

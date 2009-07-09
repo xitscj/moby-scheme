@@ -31,13 +31,13 @@ typedef struct {
 	struct val *data[];
 } struct_t;
 
-#define BUFFER_SIZE ((sb_size_t)500)
+#define BUFFER_SIZE ((sb_size_t)350)
 
 typedef uint8_t sb_size_t;
 
 typedef struct {
 	sb_size_t size;
-	unsigned char data[];
+	unsigned char *data;
 } sb_t;
 
 typedef struct val *function_t(struct val *);

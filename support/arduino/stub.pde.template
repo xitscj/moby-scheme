@@ -5,7 +5,7 @@
 #include "goertzel.h"
 #include "arduino_ext.h"
 
-#define SOUNDBUFFERSIZE 500
+#define SOUNDBUFFERSIZE 350
 
 
 //
@@ -29,7 +29,7 @@ bool sendbuffer = false;
 
 void updatebuffer(int byte) {
      unsigned char* temp;
-     sb1[head] = (char)(head % 4);//(char)byte;
+     sb1[head] = (char)byte; // (char)(head % 4);
      head++;
      if(head == SOUNDBUFFERSIZE) {
      	     temp = sb2;
@@ -43,9 +43,26 @@ void updatebuffer(int byte) {
 }
 
 static void do_redraw() {
-	if (WorldKernel_redraw_led != NULL)
+	if (WorldKernel_redraw_led != NULL) {
+
+
+		// The following section is for the single LED demo board
 		for (char i = 0; i < WorldKernel_num_leds; i++)
 			digitalWrite(4 + i, boolean_val(CALL(WorldKernel_redraw_led, 2, WorldKernel_world, alloc_number(i))) ? HIGH : LOW);
+
+
+		// The following section is for the 4-LED demo board Chris set up
+/*		char diff = (char) (sqrt(levels) * (WorldKernel_num_leds + 1) / 256);
+		if (diff > WorldKernel_num_leds) diff = WorldKernel_num_leds;
+		for (char i = 0; i < diff; i++)
+			digitalWrite(4 + i, 1);
+		for (char i = diff; i < WorldKernel_num_leds; i++)
+			digitalWrite(4 + i, 0);
+		
+		digitalWrite(12, !digitalRead(11));*/
+
+
+	}
 }
 
 void setup() {
@@ -63,9 +80,9 @@ void loop() {
 		bool dirty = false;
 	
 		if(sendbuffer) {
-		  CALL(WorldKernel_buffer_handler, 1, WorldKernel_world, alloc_sb(sb2));
+		  CALL(WorldKernel_buffer_handler, 2, WorldKernel_world, alloc_sb(sb2)); // Should the second parameter be 2? (If it is the number of arguments -- yes)
 		}
-		updatebuffer(0);//analogStart(1, &updatebuffer)
+		analogStart(1, &updatebuffer); // updatebuffer(0);
 		for (int i = 0; i < WorldKernel_num_tick_handlers; i++)
 			if (last_millis % WorldKernel_period[i] == 0) {
 				REREF(WorldKernel_world, CALL(WorldKernel_tick_handler[i], 1, WorldKernel_world));

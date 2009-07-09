@@ -112,16 +112,27 @@ val_t alloc_struct(const char *type, struct_size_t size, val_t *data) {
 }
 
 val_t alloc_sb(unsigned char *data) {
-	sb_t *v = malloc(sizeof(sb_t) + BUFFER_SIZE * sizeof(unsigned char)); /* this might need to be changed to another example of an unsigned char */
-
+	sb_t *v = malloc(sizeof(sb_t));
 	if (v == NULL) return NULL;
 
+	v->data =  malloc(BUFFER_SIZE * sizeof(unsigned char));
+	if (v->data == NULL) {
+	        free(v);
+	    	return NULL;
+        }
 	v -> size = BUFFER_SIZE;
 
 	// memcpy
 	for(sb_size_t i = 0; i < BUFFER_SIZE; i++)
 		v -> data[i] = data[i];
 
+	return alloc_val(SB, (union data) v);
+}
+
+val_t alloc_sb_nocopy(unsigned char *data) {
+	sb_t *v = malloc(sizeof(sb_t));
+	v -> size = BUFFER_SIZE;
+	v -> data = data;
 	return alloc_val(SB, (union data) v);
 }
 
